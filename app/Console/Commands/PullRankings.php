@@ -18,7 +18,7 @@ class PullRankings extends Command
      *
      * @var string
      */
-    protected $signature = 'command:PullRankings';
+    protected $signature = 'PullRankings:pullRankings';
 
     /**
      * The console command description.
@@ -79,6 +79,11 @@ class PullRankings extends Command
                 $dbcoin->symbol = $c->symbol;
                 
                 $dbcoin->save();
+
+                //Fetch logos
+                copy("https://files.coinmarketcap.com/static/img/coins/16x16/" . $dbcoin->sid . ".png" , "/public/img/coins/16x16/" . $dbcoin->sid . ".png");
+                copy("https://files.coinmarketcap.com/static/img/coins/32x32/" . $dbcoin->sid . ".png" , "/public/img/coins/32x32/" . $dbcoin->sid . ".png");
+                copy("https://files.coinmarketcap.com/static/img/coins/64x64/" . $dbcoin->sid . ".png" , "/public/img/coins/64x64/" . $dbcoin->sid . ".png");
             }
 
             $cr = new stdClass();

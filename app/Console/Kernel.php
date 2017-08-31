@@ -22,7 +22,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\PullRankings::class
+        "Commands\PullRankings"
     ];
 
     /**
@@ -34,7 +34,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         //$schedule->call(&pullRankings->dailyAt("08:00");
-        $schedule->command("command:PullRankings")->dailyAt("08:00");
+        $schedule->command("PullRankings:pullRankings")->dailyAt("08:00");
     }
 
     /**
