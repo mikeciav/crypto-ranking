@@ -11,6 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+Route::get('/', 'RankingController@index');
+Route::get('ranking/{id}', 'RankingController@show')->name('ranking');
