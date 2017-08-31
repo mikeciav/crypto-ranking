@@ -5,6 +5,15 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+use App\Coin;
+use App\Ranking;
+use App\CoinRanking;
+
+DEFINE("TOP_COIN_LIMIT",200);
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -13,7 +22,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\PullRankings::class
     ];
 
     /**
@@ -24,8 +33,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        //$schedule->call(&pullRankings->dailyAt("08:00");
+        $schedule->command("command:PullRankings")->dailyAt("08:00");
     }
 
     /**
@@ -37,4 +46,5 @@ class Kernel extends ConsoleKernel
     {
         require base_path('routes/console.php');
     }
+
 }
