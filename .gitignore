@@ -13,3 +13,4 @@ yarn-error.log
 public/img/coins/16x16/*
 public/img/coins/32x32/*
 public/img/coins/64x64/*
+log/pullRankings/*

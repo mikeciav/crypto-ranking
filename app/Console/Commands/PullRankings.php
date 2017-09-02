@@ -55,23 +55,26 @@ class PullRankings extends Command
 
         $obj = json_decode($json);
 
-        $riser = -10000.0;
-        $faller = 10000.0;
-        $pump = -10000;
-        $dump = 10000;
+        $riser = -100000.0;
+        $faller = 100000.0;
+        $pump = -100000;
+        $dump = 100000;
         $rid = $fid = $pid = $did = -1;
         $new_count = 0;
 
         $ranking = new Ranking;
-        $ranking->title = "Power Rankings for " . date("F jS Y");
+        $ranking->title = "Cryptocurrency Power Rankings for " . date("F jS Y");
         $ranking->save();
+
+        echo "List of processed coins";
 
         foreach($obj as $c){
             //Check database for id
-            echo $c->id . "  ";
-            $dbcoin = $new = 0;
+            echo PHP_EOL . $c->name;
+            $new = 0;
             $dbcoin = DB::table('coins')->where('sid', $c->id)->first();
             if(empty($dbcoin)){
+                echo " \tNEW COIN Adding new coin: " . $c->name;
                 //If coin does not exist, create new one
                 $new = 1;
                 $new_count += 1;
@@ -79,9 +82,9 @@ class PullRankings extends Command
 
                 $dbcoin->sid = $c->id;
                 $dbcoin->symbol = $c->symbol;
+                $dbcoin->name = $c->name;
                 
                 $dbcoin->save();
-
                 //Fetch logos
                 foreach(array("16x16", "32x32", "64x64") as $size){
                     $subpath = "/img/coins/" . $size. "/" . $dbcoin->sid . ".png";
@@ -89,11 +92,10 @@ class PullRankings extends Command
                     Image::make("https://files.coinmarketcap.com/static" . $subpath)->save('public' . $subpath);
                 }
             }
-
-            $cr = new stdClass();
+            $cr = new CoinRanking;
             $cr->coin_id = $dbcoin->id;
             $cr->ranking_id = $ranking->id;
-            foreach(array('rank', 'price_usd', 'price_btc', '24h_volume_usd', 'market_cap_usd', 'available_supply', 'available_supply', 'percent_change_1h', 'percent_change_24h', 'percent_change_7d') as $v){
+            foreach(array('rank', 'price_usd', 'price_btc', '24h_volume_usd', 'market_cap_usd', 'available_supply', 'total_supply', 'percent_change_1h', 'percent_change_24h', 'percent_change_7d') as $v){
                 $cr->{$v} = $c->{$v};
             }
             $cr->new = $new;
@@ -101,7 +103,7 @@ class PullRankings extends Command
                 $cr->change = 0;
             }
             else{ //Pull this coin's ranking from last week and compare to this week
-                $last = DB::table('coin_ranking')->where('coin_id', $dbcoin->id)->orderBy('id', 'desc')->first();
+                $last = CoinRanking::where('coin_id', $dbcoin->id)->orderBy('id', 'desc')->first();
                 $cr->change = $last->rank - $cr->rank;
             }
 
@@ -109,15 +111,20 @@ class PullRankings extends Command
 
             //Check for updates to statistics
             if($cr->change > $riser){
+                $riser = $cr->change;
                 $rid = $cr->id;
             }
             if($cr->change < $faller){
+                $faller = $cr->change;
                 $fid = $cr->id; 
+
             }
             if($cr->percent_change_7d > $pump){
+                $pump = $cr->percent_change_7d;
                 $pid = $cr->id; 
             }
             if($cr->percent_change_7d < $dump){
+                $dump = $cr->percent_change_7d;
                 $did = $cr->id; 
             }
 
@@ -128,6 +135,7 @@ class PullRankings extends Command
         $ranking->faller_coin_ranking_id = $fid;
         $ranking->pump_coin_ranking_id = $pid;
         $ranking->dump_coin_ranking_id = $did;
+        $ranking->new_count = $new_count;
 
         $ranking->save();
     }

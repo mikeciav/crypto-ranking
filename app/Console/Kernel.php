@@ -12,6 +12,8 @@ use App\Coin;
 use App\Ranking;
 use App\CoinRanking;
 
+use Commands\PullRankings;
+
 DEFINE("TOP_COIN_LIMIT",200);
 
 class Kernel extends ConsoleKernel
@@ -22,7 +24,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        "Commands\PullRankings"
+        "\App\Console\Commands\PullRankings"
     ];
 
     /**
@@ -34,7 +36,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         //$schedule->call(&pullRankings->dailyAt("08:00");
-        $schedule->command("PullRankings:pullRankings")->dailyAt("08:00");
+        $schedule->command("PullRankings:pullRankings")->weekly()->fridays()->at('12:00')->sendOutputTo("log/pullRankings/".date("Ymd").".txt");
     }
 
     /**
