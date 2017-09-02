@@ -15,7 +15,7 @@ class CreateRankingsTable extends Migration
     {
         Schema::create('rankings', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title')
+            $table->string('title');
             $table->integer('riser_coin_ranking_id')->unsigned()->nullable();
             $table->integer('faller_coin_ranking_id')->unsigned()->nullable();
             $table->integer('pump_coin_ranking_id')->unsigned()->nullable();
