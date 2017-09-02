@@ -11,6 +11,8 @@ use App\CoinRanking;
 
 use Illuminate\Console\Command;
 
+use Image;
+
 class PullRankings extends Command
 {
     /**
@@ -81,9 +83,11 @@ class PullRankings extends Command
                 $dbcoin->save();
 
                 //Fetch logos
-                copy("https://files.coinmarketcap.com/static/img/coins/16x16/" . $dbcoin->sid . ".png" , "/public/img/coins/16x16/" . $dbcoin->sid . ".png");
-                copy("https://files.coinmarketcap.com/static/img/coins/32x32/" . $dbcoin->sid . ".png" , "/public/img/coins/32x32/" . $dbcoin->sid . ".png");
-                copy("https://files.coinmarketcap.com/static/img/coins/64x64/" . $dbcoin->sid . ".png" , "/public/img/coins/64x64/" . $dbcoin->sid . ".png");
+                foreach(array("16x16", "32x32", "64x64") as $size){
+                    $subpath = "/img/coins/" . $size. "/" . $dbcoin->sid . ".png";
+                    if(file_exists('public' . $subpath)) continue;
+                    Image::make("https://files.coinmarketcap.com/static" . $subpath)->save('public' . $subpath);
+                }
             }
 
             $cr = new stdClass();
